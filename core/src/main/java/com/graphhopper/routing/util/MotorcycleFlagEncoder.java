@@ -33,6 +33,9 @@ import java.util.List;
 
 import static com.graphhopper.routing.util.EncodingManager.getKey;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Defines bit layout for motorbikes
  * <p>
@@ -41,10 +44,13 @@ import static com.graphhopper.routing.util.EncodingManager.getKey;
  * @author boldtrn
  */
 public class MotorcycleFlagEncoder extends CarFlagEncoder {
+    private final static Logger logger = LoggerFactory.getLogger(MotorcycleFlagEncoder.class);
+
     private final HashSet<String> avoidSet = new HashSet<>();
     private final HashSet<String> preferSet = new HashSet<>();
     private DecimalEncodedValue priorityWayEncoder;
     private DecimalEncodedValue curvatureEncoder;
+    private DecimalEncodedValue curvatureSuperEncoder;
 
     public MotorcycleFlagEncoder() {
         this(new PMap());
@@ -113,6 +119,7 @@ public class MotorcycleFlagEncoder extends CarFlagEncoder {
 
         registerNewEncodedValue.add(priorityWayEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "priority"), 4, PriorityCode.getFactor(1), false));
         registerNewEncodedValue.add(curvatureEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "curvature"), 4, 0.1, false));
+        registerNewEncodedValue.add(curvatureSuperEncoder = new UnsignedDecimalEncodedValue(getKey(prefix, "curvaturesuper"), 4, 0.1, false));
     }
 
     @Override
@@ -225,9 +232,12 @@ public class MotorcycleFlagEncoder extends CarFlagEncoder {
         double beelineDistance = getBeelineDistance(way);
         double bendiness = beelineDistance / roadDistance;
 
+        logger.info("bendiness: " + bendiness);
         bendiness = discriminateSlowStreets(bendiness, speed);
         bendiness = increaseBendinessImpact(bendiness);
         bendiness = correctErrors(bendiness);
+
+        //logger.info("b:" + bendiness + " bD:" + beelineDistance + " rD:" + roadDistance);
 
         edge.set(curvatureEncoder, bendiness);
     }

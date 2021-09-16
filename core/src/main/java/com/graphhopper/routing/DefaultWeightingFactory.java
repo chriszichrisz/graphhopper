@@ -25,6 +25,7 @@ import com.graphhopper.routing.weighting.*;
 import com.graphhopper.routing.weighting.custom.CustomModelParser;
 import com.graphhopper.routing.weighting.custom.CustomProfile;
 import com.graphhopper.routing.weighting.custom.CustomWeighting;
+import com.graphhopper.routing.weighting.ridersandroads.CurvatureSuperWeighting;
 import com.graphhopper.storage.GraphHopperStorage;
 import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.PMap;
@@ -91,6 +92,8 @@ public class DefaultWeightingFactory implements WeightingFactory {
             if (encoder.supports(CurvatureWeighting.class))
                 weighting = new CurvatureWeighting(encoder, hints, turnCostProvider);
 
+        } else if ("curvaturesuper".equalsIgnoreCase(weightingStr)) {
+            weighting = new CurvatureSuperWeighting(encoder, hints, turnCostProvider);
         } else if ("short_fastest".equalsIgnoreCase(weightingStr)) {
             weighting = new ShortFastestWeighting(encoder, hints, turnCostProvider);
         }
